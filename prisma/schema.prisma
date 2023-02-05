@@ -11,8 +11,12 @@ datasource db {
 }
 
 model Words {
-    id          String   @id @default(cuid())
-    englishWord String   @unique
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+    id              String   @id @default(cuid())
+    englishSpelling String   @unique
+    englishMeaning  String   @unique
+    hiragana        String
+    katakana        String?
+    kanji           String?
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
 }

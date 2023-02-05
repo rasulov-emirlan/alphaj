@@ -1,12 +1,26 @@
 import { useState } from "react";
+import { api } from "../../utils/api";
 import { AlphabetHiragana, AlphabetKatakana } from "./alphabets";
 import { Alphabet } from "./components/alphabet";
-import { WordsLogic, AlphabetType } from "./logic";
-import { words } from "./words";
-
-const logic = new WordsLogic(words);
+import { WordsLogic, AlphabetType, Word } from "./logic";
+import { words as wordsData } from "./words";
 
 const Words = () => {
+  const words = api.words.readAll.useQuery();
+
+  const mapWordsToLogic = () => {
+    const m = new Map<string[], Word>(wordsData);
+
+    words.data?.forEach((word) => {
+      let w = word.englishSpelling.split("-");
+      m.set(w, new Word(word.hiragana));
+    });
+
+    return m;
+  };
+
+  const logic: WordsLogic = new WordsLogic(mapWordsToLogic());
+
   const [currentAlphabet, setCurrentAlphabet] = useState({
     currAlphabet: AlphabetHiragana,
     currAlphabetName: "hiragana" as AlphabetType,
@@ -48,6 +62,14 @@ const Words = () => {
       setInputWord("");
     }
   };
+
+  if (words.status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  if (words.status === "error") {
+    return <div>Error: {words.error.message}</div>;
+  }
 
   return (
     <main className="m-auto max-w-[1260px] p-2">
